@@ -1,11 +1,10 @@
-import { Heart, Target, Eye, Award, ArrowLeft } from "lucide-react";
-import { Button } from "./ui/button";
+import { Heart, Target, Eye, Award } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 import heroImage from "figma:asset/fd2bb5fb0ba1b4b97b059bbf8065c484f55256a6.png";
 
-export function About({ onNavigate }: { onNavigate: (page: string) => void }) {
+export function About() {
   const values = [
     {
       icon: Heart,
