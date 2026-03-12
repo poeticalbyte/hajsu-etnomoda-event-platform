@@ -4,6 +4,7 @@ import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useState } from "react";
+import { registerAttendee } from "../services/AttendeeService";
 
 interface RegisterProps {
   onNavigate: (page: string) => void;
@@ -25,11 +26,31 @@ export function Register({ onNavigate }: RegisterProps) {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
+
     e.preventDefault();
-    // Guardar datos y navegar al evento
+
+    const attendee = {
+      fullName: formData.nombres,
+      email: formData.correo,
+      country: formData.pais,
+      city: formData.ciudad,
+      institution: formData.institucion
+    };
+
+    await registerAttendee(attendee);
+
+    alert("Registration successful!");
+    setFormData({
+      nombres: "",
+      correo: "",
+      pais: "",
+      ciudad: "",
+      institucion: ""
+    });
     onNavigate("event");
   };
+
 
   return (
     <div className="container mx-auto px-4 py-20">
