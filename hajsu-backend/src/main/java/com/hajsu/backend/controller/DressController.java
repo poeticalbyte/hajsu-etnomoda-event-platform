@@ -1,6 +1,7 @@
 package com.hajsu.backend.controller;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +29,6 @@ public class DressController {
 
     @GetMapping("/{id}")
     public Dress getDressById(@PathVariable Long id) {
-        return dressRepository.findById(id).orElse(null);
+        return dressRepository.findById(Objects.requireNonNull(id)).orElse(null);
     }
 }
