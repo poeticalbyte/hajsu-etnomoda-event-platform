@@ -1,13 +1,22 @@
+import { useState, useEffect } from "react";
 import { Users, Package, MessageSquare, TrendingUp, Calendar, Star } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
+import { getAttendeeCount } from "../services/AttendeeService";
 
 export function AdminPanel() {
+  const [attendeeCount, setAttendeeCount] = useState<string>("...");
+
+  useEffect(() => {
+    getAttendeeCount()
+      .then((count) => setAttendeeCount(String(count)))
+      .catch(() => setAttendeeCount("—"));
+  }, []);
   // Datos de ejemplo para el panel
   const stats = [
     {
       icon: Users,
       label: "Registros al Evento",
-      value: "127",
+      value: attendeeCount,
       change: "+12%",
       color: "bg-primary/10 text-primary",
     },

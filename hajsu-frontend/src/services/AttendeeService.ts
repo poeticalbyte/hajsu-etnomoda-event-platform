@@ -12,3 +12,8 @@ export async function registerAttendee(attendee: { fullName: string; email: stri
 
   return await response.json();
 }
+
+export async function getAttendeeCount(): Promise<number> {
+  const response = await fetch(`${API_URL}/count`);
+  return await response.json();
+}

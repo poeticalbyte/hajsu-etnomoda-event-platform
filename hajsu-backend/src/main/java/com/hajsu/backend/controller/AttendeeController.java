@@ -3,6 +3,7 @@ package com.hajsu.backend.controller;
 import java.time.LocalDateTime;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,11 @@ public class AttendeeController {
 
     public AttendeeController(AttendeeRepository attendeeRepository) {
         this.attendeeRepository = attendeeRepository;
+    }
+
+    @GetMapping("/count")
+    public long getAttendeeCount() {
+        return attendeeRepository.count();
     }
 
     @PostMapping
