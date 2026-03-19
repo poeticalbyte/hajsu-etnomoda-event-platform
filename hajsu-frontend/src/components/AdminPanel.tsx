@@ -1,15 +1,24 @@
 import { useState, useEffect } from "react";
 import { Users, Package, MessageSquare, TrendingUp, Calendar, Star } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
-import { getAttendeeCount } from "../services/AttendeeService";
+import { getAttendeeCount, getRecentAttendees, type AttendeeDTO } from "../services/AttendeeService";
+
+const RECENT_REGISTRATIONS_LIMIT = 5;
 
 export function AdminPanel() {
   const [attendeeCount, setAttendeeCount] = useState<string>("...");
+  const [recentRegistrations, setRecentRegistrations] = useState<AttendeeDTO[]>([]);
+  const [registrationsLoading, setRegistrationsLoading] = useState(true);
 
   useEffect(() => {
     getAttendeeCount()
       .then((count) => setAttendeeCount(String(count)))
       .catch(() => setAttendeeCount("—"));
+
+    getRecentAttendees(RECENT_REGISTRATIONS_LIMIT)
+      .then((data) => setRecentRegistrations(data))
+      .catch(() => setRecentRegistrations([]))
+      .finally(() => setRegistrationsLoading(false));
   }, []);
   // Datos de ejemplo para el panel
   const stats = [
@@ -43,13 +52,7 @@ export function AdminPanel() {
     },
   ];
 
-  const recentRegistrations = [
-    { name: "Ana García", email: "ana@email.com", institution: "Universidad Central", date: "2025-11-10" },
-    { name: "Carlos Mendoza", email: "carlos@email.com", institution: "Politécnica Nacional", date: "2025-11-10" },
-    { name: "María Torres", email: "maria@email.com", institution: "Universidad Andina", date: "2025-11-09" },
-    { name: "José Ramírez", email: "jose@email.com", institution: "PUCE", date: "2025-11-09" },
-    { name: "Laura Sánchez", email: "laura@email.com", institution: "Universidad San Francisco", date: "2025-11-08" },
-  ];
+
 
   const topProducts = [
     { name: "Poncho Ancestral", views: 234, interest: "Alto" },
@@ -104,26 +107,45 @@ export function AdminPanel() {
               <Users className="w-6 h-6 text-primary" />
               <h2>Registros Recientes al Evento</h2>
             </div>
-            <div className="space-y-4">
-              {recentRegistrations.map((registration, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors"
-                >
-                  <div className="flex-1">
-                    <p className="mb-1">{registration.name}</p>
-                    <p className="text-sm text-muted-foreground">{registration.email}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{registration.institution}</p>
+            {registrationsLoading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="p-4 bg-secondary/30 rounded-lg animate-pulse">
+                    <div className="h-4 bg-muted rounded w-1/3 mb-2"></div>
+                    <div className="h-3 bg-muted rounded w-1/2 mb-1"></div>
+                    <div className="h-3 bg-muted rounded w-1/4"></div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">{registration.date}</p>
-                  </div>
+                ))}
+              </div>
+            ) : recentRegistrations.length === 0 ? (
+              <div className="text-center py-8">
+                <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground">No hay asistentes registrados aún...</p>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-4">
+                  {recentRegistrations.map((registration) => (
+                    <div
+                      key={registration.id}
+                      className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <p className="mb-1">{registration.fullName}</p>
+                        <p className="text-sm text-muted-foreground">{registration.email}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{registration.institution}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">{registration.registrationDate}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <button className="w-full mt-4 py-3 text-center text-primary hover:bg-primary/5 rounded-md transition-colors">
-              Ver Todos los Registros
-            </button>
+                <button className="w-full mt-4 py-3 text-center text-primary hover:bg-primary/5 rounded-md transition-colors">
+                  Ver Todos los Registros
+                </button>
+              </>
+            )}
           </CardContent>
         </Card>
 
