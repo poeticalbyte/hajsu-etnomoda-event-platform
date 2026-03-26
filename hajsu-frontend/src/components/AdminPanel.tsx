@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Users, Package, MessageSquare, TrendingUp, Calendar, Star, Plus, Edit } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Modal, ModalHeader, ModalTitle } from "./ui/modal";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -260,11 +260,10 @@ export function AdminPanel() {
                   Ver Todos los Registros
                 </button>
 
-                <Dialog open={showAllRegistersModal} onOpenChange={setShowAllRegistersModal}>
-                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Todos los Registros al Evento</DialogTitle>
-                    </DialogHeader>
+                <Modal open={showAllRegistersModal} onOpenChange={setShowAllRegistersModal} className="max-w-4xl">
+                    <ModalHeader>
+                      <ModalTitle>Todos los Registros al Evento</ModalTitle>
+                    </ModalHeader>
                     {allRegistrationsLoading ? (
                       <div className="space-y-3 mt-4">
                         {Array.from({ length: 3 }).map((_, i) => (
@@ -311,8 +310,7 @@ export function AdminPanel() {
                         ))}
                       </div>
                     )}
-                  </DialogContent>
-                </Dialog>
+                </Modal>
               </>
             )}
           </CardContent>
@@ -330,11 +328,10 @@ export function AdminPanel() {
                 <Plus className="w-4 h-4 mr-1" />
                 Añadir
               </Button>
-              <Dialog open={showAddProductModal} onOpenChange={setShowAddProductModal}>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>Añadir Nuevo Producto</DialogTitle>
-                  </DialogHeader>
+              <Modal open={showAddProductModal} onOpenChange={setShowAddProductModal} className="max-w-2xl">
+                  <ModalHeader>
+                    <ModalTitle>Añadir Nuevo Producto</ModalTitle>
+                  </ModalHeader>
                   <div className="space-y-4 mt-4">
                     <div>
                       <Label htmlFor="name">Nombre del Producto *</Label>
@@ -424,8 +421,7 @@ export function AdminPanel() {
                       Añadir
                     </Button>
                   </div>
-                </DialogContent>
-              </Dialog>
+              </Modal>
             </div>
             {productsLoading ? (
               <div className="space-y-4">
@@ -490,11 +486,10 @@ export function AdminPanel() {
       </div>
 
       {/* Edit Product Modal */}
-      <Dialog open={showEditProductModal} onOpenChange={setShowEditProductModal}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Editar Producto</DialogTitle>
-          </DialogHeader>
+      <Modal open={showEditProductModal} onOpenChange={setShowEditProductModal} className="max-w-2xl">
+          <ModalHeader>
+            <ModalTitle>Editar Producto</ModalTitle>
+          </ModalHeader>
           {editingProduct && (
             <div className="space-y-4 mt-4">
               <div>
@@ -586,8 +581,7 @@ export function AdminPanel() {
               </Button>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+      </Modal>
 
       {/* Resultados de Encuestas */}
       <Card className="mt-8">
