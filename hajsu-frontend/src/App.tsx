@@ -10,6 +10,7 @@ import { Survey } from "./components/Survey";
 import { About } from "./components/About";
 import { Contact } from "./components/Contact";
 import { AdminPanel } from "./components/AdminPanel";
+import { Toaster } from "./components/ui/sonner";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("home");
@@ -52,6 +53,7 @@ export default function App() {
         {renderPage()}
       </main>
       <Footer />
+      <Toaster richColors position="top-right" />
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Users, Package, MessageSquare, TrendingUp, Calendar, Star, Plus, Edit } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
@@ -7,149 +6,38 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 import { Checkbox } from "./ui/checkbox";
-import { toast } from "sonner";
-import { getAttendeeCount, getRecentAttendees, getAllAttendees, type AttendeeDTO } from "../services/AttendeeService";
-import { getAllDresses, createDress, updateDress, getActiveCount, type DressDTO } from "../services/DressService";
+import { useState, useEffect } from "react";
+import { toast } from "sonner@2.0.3";
 
-const RECENT_REGISTRATIONS_LIMIT = 5;
+interface Product {
+  id: string;
+  name: string;
+  price: string;
+  description: string;
+  history: string;
+  artist: string;
+  materials: string;
+  timeToMake: string;
+  imageUrl: string;
+  visible: boolean;
+  views: number;
+  interest: string;
+}
 
 export function AdminPanel() {
-  const [attendeeCount, setAttendeeCount] = useState<string>("...");
-  const [activeProductCount, setActiveProductCount] = useState<string>("...");
-  const [recentRegistrations, setRecentRegistrations] = useState<AttendeeDTO[]>([]);
-  const [registrationsLoading, setRegistrationsLoading] = useState(true);
-
-  const [products, setProducts] = useState<DressDTO[]>([]);
-  const [productsLoading, setProductsLoading] = useState(true);
-
-  const [showAddProductModal, setShowAddProductModal] = useState(false);
-  const [showEditProductModal, setShowEditProductModal] = useState(false);
-  const [showAllRegistersModal, setShowAllRegistersModal] = useState(false);
-  const [allRegistrations, setAllRegistrations] = useState<AttendeeDTO[]>([]);
-  const [allRegistrationsLoading, setAllRegistrationsLoading] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<DressDTO | null>(null);
-
-  const [newProduct, setNewProduct] = useState<Omit<DressDTO, "id">>({
-    name: "",
-    price: 0,
-    shortDescription: "",
-    culturalStory: "",
-    artist: "",
-    materials: "",
-    elaborationTime: "",
-    imageUrl: "",
-    visible: true,
-  });
-
-  useEffect(() => {
-    getAttendeeCount()
-      .then((count) => setAttendeeCount(String(count)))
-      .catch(() => setAttendeeCount("—"));
-
-    getRecentAttendees(RECENT_REGISTRATIONS_LIMIT)
-      .then((data) => setRecentRegistrations(data))
-      .catch(() => setRecentRegistrations([]))
-      .finally(() => setRegistrationsLoading(false));
-
-    loadProducts();
-
-    getActiveCount()
-      .then((count) => setActiveProductCount(String(count)))
-      .catch(() => setActiveProductCount("—"));
-  }, []);
-
-  const loadProducts = () => {
-    setProductsLoading(true);
-    getAllDresses()
-      .then((data) => setProducts(data))
-      .catch(() => {
-        setProducts([]);
-        toast.error("Error al cargar los productos");
-      })
-      .finally(() => setProductsLoading(false));
-  };
-
-  const handleAddProduct = async () => {
-    if (!newProduct.name || !newProduct.price) {
-      toast.error("Por favor completa al menos el nombre y precio del producto");
-      return;
-    }
-
-    try {
-      await createDress(newProduct);
-      setNewProduct({
-        name: "",
-        price: 0,
-        shortDescription: "",
-        culturalStory: "",
-        artist: "",
-        materials: "",
-        elaborationTime: "",
-        imageUrl: "",
-        visible: true,
-      });
-      setShowAddProductModal(false);
-      toast.success("Producto añadido exitosamente");
-      loadProducts();
-      getActiveCount()
-        .then((count) => setActiveProductCount(String(count)))
-        .catch(() => {});
-    } catch {
-      toast.error("Error al añadir el producto");
-    }
-  };
-
-  const handleEditProduct = async () => {
-    if (!editingProduct || !editingProduct.id) return;
-
-    if (!editingProduct.name || !editingProduct.price) {
-      toast.error("Por favor completa al menos el nombre y precio del producto");
-      return;
-    }
-
-    try {
-      await updateDress(editingProduct.id, editingProduct);
-      setShowEditProductModal(false);
-      setEditingProduct(null);
-      toast.success("Producto actualizado exitosamente");
-      loadProducts();
-      getActiveCount()
-        .then((count) => setActiveProductCount(String(count)))
-        .catch(() => {});
-    } catch {
-      toast.error("Error al actualizar el producto");
-    }
-  };
-
-  const openEditModal = (product: DressDTO) => {
-    setEditingProduct({ ...product });
-    setShowEditProductModal(true);
-  };
-
-  const handleOpenAllRegisters = () => {
-    setShowAllRegistersModal(true);
-    setAllRegistrationsLoading(true);
-    getAllAttendees()
-      .then((data) => setAllRegistrations(data))
-      .catch(() => {
-        setAllRegistrations([]);
-        toast.error("Error al cargar los registros");
-      })
-      .finally(() => setAllRegistrationsLoading(false));
-  };
-
+  // Datos de ejemplo para el panel
   const stats = [
     {
       icon: Users,
       label: "Registros al Evento",
-      value: attendeeCount,
+      value: "127",
       change: "+12%",
       color: "bg-primary/10 text-primary",
     },
     {
       icon: Package,
       label: "Productos Activos",
-      value: activeProductCount,
+      value: "24",
       change: "+3",
       color: "bg-accent/10 text-accent",
     },
@@ -169,16 +57,118 @@ export function AdminPanel() {
     },
   ];
 
+  const recentRegistrations = [
+    { name: "Ana García", email: "ana@email.com", institution: "Universidad Central", date: "2025-11-10" },
+    { name: "Carlos Mendoza", email: "carlos@email.com", institution: "Politécnica Nacional", date: "2025-11-10" },
+    { name: "María Torres", email: "maria@email.com", institution: "Universidad Andina", date: "2025-11-09" },
+    { name: "José Ramírez", email: "jose@email.com", institution: "PUCE", date: "2025-11-09" },
+    { name: "Laura Sánchez", email: "laura@email.com", institution: "Universidad San Francisco", date: "2025-11-08" },
+  ];
+
+  const [products, setProducts] = useState<Product[]>([
+    { id: "1", name: "Poncho Ancestral", price: "$85.000 COP", description: "Poncho tejido a mano", history: "Técnica ancestral de los Pastos", artist: "Maestro Juan Carlos", materials: "Lana de oveja", timeToMake: "3 semanas", imageUrl: "", visible: true, views: 234, interest: "Alto" },
+    { id: "2", name: "Blusa Tejida a Mano", price: "$62.000 COP", description: "Blusa con bordados tradicionales", history: "Inspirada en flores silvestres", artist: "Sra. Elena Cuasquer", materials: "Algodón orgánico", timeToMake: "2 semanas", imageUrl: "", visible: true, views: 189, interest: "Alto" },
+    { id: "3", name: "Chaleco Artesanal", price: "$75.000 COP", description: "Chaleco con patrones geométricos", history: "Símbolos de la cosmovisión andina", artist: "Taller Los Pastos", materials: "Lana y algodón", timeToMake: "2.5 semanas", imageUrl: "", visible: true, views: 156, interest: "Medio" },
+    { id: "4", name: "Ruana de Lana Natural", price: "$95.000 COP", description: "Ruana térmica tradicional", history: "Protección del clima de páramo", artist: "Don Pedro Chiles", materials: "Lana de oveja natural", timeToMake: "4 semanas", imageUrl: "", visible: true, views: 134, interest: "Medio" },
+    { id: "5", name: "Vestido Ceremonial", price: "$125.000 COP", description: "Vestido para ocasiones especiales", history: "Usado en ceremonias ancestrales", artist: "Doña María Ipiales", materials: "Seda y lana", timeToMake: "5 semanas", imageUrl: "", visible: true, views: 98, interest: "Medio" },
+  ]);
+
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [showEditProductModal, setShowEditProductModal] = useState(false);
+  const [showAllRegistersModal, setShowAllRegistersModal] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  
+  const [newProduct, setNewProduct] = useState<Omit<Product, "id" | "views" | "interest">>({
+    name: "",
+    price: "",
+    description: "",
+    history: "",
+    artist: "",
+    materials: "",
+    timeToMake: "",
+    imageUrl: "",
+    visible: true,
+  });
+
+  // Load products from localStorage on mount
+  useEffect(() => {
+    const savedProducts = localStorage.getItem("adminProducts");
+    if (savedProducts) {
+      setProducts(JSON.parse(savedProducts));
+    }
+  }, []);
+
+  // Save products to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem("adminProducts", JSON.stringify(products));
+  }, [products]);
+
+  const handleAddProduct = () => {
+    if (!newProduct.name || !newProduct.price) {
+      toast.error("Por favor completa al menos el nombre y precio del producto");
+      return;
+    }
+
+    const product: Product = {
+      ...newProduct,
+      id: Date.now().toString(),
+      views: 0,
+      interest: "Nuevo",
+    };
+
+    setProducts([...products, product]);
+    setNewProduct({
+      name: "",
+      price: "",
+      description: "",
+      history: "",
+      artist: "",
+      materials: "",
+      timeToMake: "",
+      imageUrl: "",
+      visible: true,
+    });
+    setShowAddProductModal(false);
+    toast.success("Producto añadido exitosamente");
+  };
+
+  const handleEditProduct = () => {
+    if (!editingProduct) return;
+
+    if (!editingProduct.name || !editingProduct.price) {
+      toast.error("Por favor completa al menos el nombre y precio del producto");
+      return;
+    }
+
+    setProducts(products.map(p => p.id === editingProduct.id ? editingProduct : p));
+    setShowEditProductModal(false);
+    setEditingProduct(null);
+    toast.success("Producto actualizado exitosamente");
+  };
+
+  const openEditModal = (product: Product) => {
+    setEditingProduct({ ...product });
+    setShowEditProductModal(true);
+  };
+
+  // Mock registrations data - in a real app this would come from a backend
+  const allRegistrations = [
+    { name: "Ana García", email: "ana@email.com", institution: "Universidad Central", date: "2025-11-10", phone: "312 345 6789" },
+    { name: "Carlos Mendoza", email: "carlos@email.com", institution: "Politécnica Nacional", date: "2025-11-10", phone: "315 678 9012" },
+    { name: "María Torres", email: "maria@email.com", institution: "Universidad Andina", date: "2025-11-09", phone: "318 901 2345" },
+    { name: "José Ramírez", email: "jose@email.com", institution: "PUCE", date: "2025-11-09", phone: "320 234 5678" },
+    { name: "Laura Sánchez", email: "laura@email.com", institution: "Universidad San Francisco", date: "2025-11-08", phone: "314 567 8901" },
+    { name: "Pedro Gómez", email: "pedro@email.com", institution: "Universidad de Nariño", date: "2025-11-08", phone: "319 890 1234" },
+    { name: "Sofía Martínez", email: "sofia@email.com", institution: "Universidad Central", date: "2025-11-07", phone: "311 123 4567" },
+    { name: "Diego Ruiz", email: "diego@email.com", institution: "Politécnica Nacional", date: "2025-11-07", phone: "316 456 7890" },
+  ];
+
   const surveyResults = [
     { category: "Calidad del Evento", rating: 4.8 },
     { category: "Organización", rating: 4.6 },
     { category: "Calidad de Productos", rating: 4.9 },
     { category: "Experiencia General", rating: 4.7 },
   ];
-
-  const formatPrice = (price: number) => {
-    return `$${price.toLocaleString("es-CO")} COP`;
-  };
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -218,104 +208,67 @@ export function AdminPanel() {
               <Users className="w-6 h-6 text-primary" />
               <h2>Registros Recientes al Evento</h2>
             </div>
-            {registrationsLoading ? (
-              <div className="space-y-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="p-4 bg-secondary/30 rounded-lg animate-pulse">
-                    <div className="h-4 bg-muted rounded w-1/3 mb-2"></div>
-                    <div className="h-3 bg-muted rounded w-1/2 mb-1"></div>
-                    <div className="h-3 bg-muted rounded w-1/4"></div>
+            <div className="space-y-4">
+              {recentRegistrations.map((registration, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <p className="mb-1">{registration.name}</p>
+                    <p className="text-sm text-muted-foreground">{registration.email}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{registration.institution}</p>
                   </div>
-                ))}
-              </div>
-            ) : recentRegistrations.length === 0 ? (
-              <div className="text-center py-8">
-                <Users className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">No hay asistentes registrados aún...</p>
-              </div>
-            ) : (
-              <>
-                <div className="space-y-4">
-                  {recentRegistrations.map((registration) => (
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">{registration.date}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <Dialog open={showAllRegistersModal} onOpenChange={setShowAllRegistersModal}>
+              <DialogTrigger asChild>
+                <button className="w-full mt-4 py-3 text-center text-primary hover:bg-primary/5 rounded-md transition-colors">
+                  Ver Todos los Registros
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Todos los Registros al Evento</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3 mt-4">
+                  {allRegistrations.map((registration, index) => (
                     <div
-                      key={registration.id}
-                      className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors"
+                      key={index}
+                      className="p-4 bg-secondary/30 rounded-lg border border-border"
                     >
-                      <div className="flex-1">
-                        <p className="mb-1">{registration.fullName}</p>
-                        <p className="text-sm text-muted-foreground">{registration.email}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{registration.institution}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground">{registration.registrationDate}</p>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Nombre</p>
+                          <p className="font-semibold">{registration.name}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="font-semibold">{registration.email}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Institución</p>
+                          <p className="font-semibold">{registration.institution}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Teléfono</p>
+                          <p className="font-semibold">{registration.phone}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Fecha de Registro</p>
+                          <p className="font-semibold">{registration.date}</p>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
-
-                <Dialog open={showAllRegistersModal} onOpenChange={setShowAllRegistersModal}>
-                  <DialogTrigger asChild>
-                    <button
-                      className="w-full mt-4 py-3 text-center text-primary hover:bg-primary/5 rounded-md transition-colors"
-                      onClick={handleOpenAllRegisters}
-                    >
-                      Ver Todos los Registros
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Todos los Registros al Evento</DialogTitle>
-                    </DialogHeader>
-                    {allRegistrationsLoading ? (
-                      <div className="space-y-3 mt-4">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div key={i} className="p-4 bg-secondary/30 rounded-lg animate-pulse">
-                            <div className="h-4 bg-muted rounded w-1/3 mb-2"></div>
-                            <div className="h-3 bg-muted rounded w-1/2"></div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="space-y-3 mt-4">
-                        {allRegistrations.map((registration) => (
-                          <div
-                            key={registration.id}
-                            className="p-4 bg-secondary/30 rounded-lg border border-border"
-                          >
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <p className="text-sm text-muted-foreground">Nombre</p>
-                                <p className="font-semibold">{registration.fullName}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-muted-foreground">Email</p>
-                                <p className="font-semibold">{registration.email}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-muted-foreground">País</p>
-                                <p className="font-semibold">{registration.country}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-muted-foreground">Ciudad</p>
-                                <p className="font-semibold">{registration.city}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-muted-foreground">Institución</p>
-                                <p className="font-semibold">{registration.institution}</p>
-                              </div>
-                              <div>
-                                <p className="text-sm text-muted-foreground">Fecha de Registro</p>
-                                <p className="font-semibold">{registration.registrationDate}</p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </DialogContent>
-                </Dialog>
-              </>
-            )}
+              </DialogContent>
+            </Dialog>
           </CardContent>
         </Card>
 
@@ -349,21 +302,20 @@ export function AdminPanel() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="price">Precio (número) *</Label>
+                      <Label htmlFor="price">Precio *</Label>
                       <Input
                         id="price"
-                        type="number"
-                        value={newProduct.price || ""}
-                        onChange={(e) => setNewProduct({ ...newProduct, price: Number(e.target.value) })}
-                        placeholder="Ej: 85000"
+                        value={newProduct.price}
+                        onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                        placeholder="Ej: $85.000 COP"
                       />
                     </div>
                     <div>
                       <Label htmlFor="description">Descripción Corta</Label>
                       <Input
                         id="description"
-                        value={newProduct.shortDescription}
-                        onChange={(e) => setNewProduct({ ...newProduct, shortDescription: e.target.value })}
+                        value={newProduct.description}
+                        onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                         placeholder="Descripción breve del producto"
                       />
                     </div>
@@ -371,8 +323,8 @@ export function AdminPanel() {
                       <Label htmlFor="history">Historia</Label>
                       <Textarea
                         id="history"
-                        value={newProduct.culturalStory}
-                        onChange={(e) => setNewProduct({ ...newProduct, culturalStory: e.target.value })}
+                        value={newProduct.history}
+                        onChange={(e) => setNewProduct({ ...newProduct, history: e.target.value })}
                         placeholder="Historia y significado cultural del producto"
                         rows={3}
                       />
@@ -399,8 +351,8 @@ export function AdminPanel() {
                       <Label htmlFor="timeToMake">Tiempo de Elaboración</Label>
                       <Input
                         id="timeToMake"
-                        value={newProduct.elaborationTime}
-                        onChange={(e) => setNewProduct({ ...newProduct, elaborationTime: e.target.value })}
+                        value={newProduct.timeToMake}
+                        onChange={(e) => setNewProduct({ ...newProduct, timeToMake: e.target.value })}
                         placeholder="Ej: 3 semanas"
                       />
                     </div>
@@ -424,67 +376,53 @@ export function AdminPanel() {
                       </Label>
                     </div>
                     <Button onClick={handleAddProduct} className="w-full">
-                      Añadir
+                      Añadir Producto
                     </Button>
                   </div>
                 </DialogContent>
               </Dialog>
             </div>
-            {productsLoading ? (
-              <div className="space-y-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="p-4 bg-secondary/30 rounded-lg animate-pulse">
-                    <div className="h-4 bg-muted rounded w-1/3 mb-2"></div>
-                    <div className="h-3 bg-muted rounded w-1/2"></div>
-                  </div>
-                ))}
-              </div>
-            ) : products.length === 0 ? (
-              <div className="text-center py-8">
-                <Package className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-                <p className="text-muted-foreground">No hay productos aún. ¡Añade el primero!</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {products.map((product, index) => (
-                  <div
-                    key={product.id}
-                    className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg"
-                  >
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center">
-                        <span className="text-accent">{index + 1}</span>
-                      </div>
-                      <div className="flex-1">
-                        <p className="mb-1">{product.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {formatPrice(product.price)}
-                        </p>
-                      </div>
+            <div className="space-y-4">
+              {products.filter(p => p.visible).slice(0, 5).map((product, index) => (
+                <div
+                  key={product.id}
+                  className="flex items-center justify-between p-4 bg-secondary/30 rounded-lg"
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="w-8 h-8 bg-accent/20 rounded-full flex items-center justify-center">
+                      <span className="text-accent">{index + 1}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-xs px-3 py-1 rounded-full ${
-                          product.visible
-                            ? "bg-primary/20 text-primary"
-                            : "bg-muted text-muted-foreground"
-                        }`}
-                      >
-                        {product.visible ? "Visible" : "Oculto"}
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => openEditModal(product)}
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Editar
-                      </Button>
+                    <div className="flex-1">
+                      <p className="mb-1">{product.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {product.views} vistas
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs px-3 py-1 rounded-full ${
+                        product.interest === "Alto"
+                          ? "bg-primary/20 text-primary"
+                          : product.interest === "Nuevo"
+                          ? "bg-accent/20 text-accent"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {product.interest}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openEditModal(product)}
+                    >
+                      <Edit className="w-4 h-4 mr-1" />
+                      Editar
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
             <button className="w-full mt-4 py-3 text-center text-primary hover:bg-primary/5 rounded-md transition-colors">
               Ver Catálogo Completo
             </button>
@@ -510,21 +448,20 @@ export function AdminPanel() {
                 />
               </div>
               <div>
-                <Label htmlFor="edit-price">Precio (número) *</Label>
+                <Label htmlFor="edit-price">Precio *</Label>
                 <Input
                   id="edit-price"
-                  type="number"
-                  value={editingProduct.price || ""}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
-                  placeholder="Ej: 85000"
+                  value={editingProduct.price}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })}
+                  placeholder="Ej: $85.000 COP"
                 />
               </div>
               <div>
                 <Label htmlFor="edit-description">Descripción Corta</Label>
                 <Input
                   id="edit-description"
-                  value={editingProduct.shortDescription}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, shortDescription: e.target.value })}
+                  value={editingProduct.description}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
                   placeholder="Descripción breve del producto"
                 />
               </div>
@@ -532,8 +469,8 @@ export function AdminPanel() {
                 <Label htmlFor="edit-history">Historia</Label>
                 <Textarea
                   id="edit-history"
-                  value={editingProduct.culturalStory}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, culturalStory: e.target.value })}
+                  value={editingProduct.history}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, history: e.target.value })}
                   placeholder="Historia y significado cultural del producto"
                   rows={3}
                 />
@@ -560,8 +497,8 @@ export function AdminPanel() {
                 <Label htmlFor="edit-timeToMake">Tiempo de Elaboración</Label>
                 <Input
                   id="edit-timeToMake"
-                  value={editingProduct.elaborationTime}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, elaborationTime: e.target.value })}
+                  value={editingProduct.timeToMake}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, timeToMake: e.target.value })}
                   placeholder="Ej: 3 semanas"
                 />
               </div>
@@ -651,7 +588,7 @@ export function AdminPanel() {
             </div>
             <div className="p-4 bg-secondary/30 rounded-lg">
               <p className="text-sm text-muted-foreground mb-1">Registros</p>
-              <p>{attendeeCount} / 200 cupos</p>
+              <p>127 / 200 cupos</p>
             </div>
           </div>
         </CardContent>

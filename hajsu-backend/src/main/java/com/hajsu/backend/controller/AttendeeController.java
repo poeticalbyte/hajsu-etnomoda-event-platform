@@ -26,6 +26,11 @@ public class AttendeeController {
         this.attendeeRepository = attendeeRepository;
     }
 
+    @GetMapping
+    public List<Attendee> getAllAttendees() {
+        return attendeeRepository.findAllByOrderByRegistrationDateDesc();
+    }
+
     @GetMapping("/count")
     public long getAttendeeCount() {
         return attendeeRepository.count();

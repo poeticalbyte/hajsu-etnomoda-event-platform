@@ -10,4 +10,6 @@ import com.hajsu.backend.entity.Attendee;
 public interface AttendeeRepository extends JpaRepository<Attendee, Long> {
 
     List<Attendee> findAllByOrderByRegistrationDateDesc(Pageable pageable);
+
+    List<Attendee> findAllByOrderByRegistrationDateDesc();
 }

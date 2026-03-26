@@ -32,3 +32,8 @@ export async function getRecentAttendees(limit: number = 5): Promise<AttendeeDTO
   const response = await fetch(`${API_URL}/recent?limit=${limit}`);
   return await response.json();
 }
+
+export async function getAllAttendees(): Promise<AttendeeDTO[]> {
+  const response = await fetch(API_URL);
+  return await response.json();
+}

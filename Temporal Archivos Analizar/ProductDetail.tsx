@@ -1,18 +1,14 @@
 import { ChevronLeft, Star, ArrowLeft } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { toast } from "sonner";
-import { submitRating, getAverageRating } from "../services/RatingService";
-import { getAllAttendees } from "../services/AttendeeService";
+import { toast } from "sonner@2.0.3";
 
 // Asset imports
-import imgPonchoNegro from "../assets/b1a69e7545c222daad26efccae87fec1fde6097f.png";
-import imgCapaMagenta from "../assets/07854432f17676c10fb1def7caea4aa0e23e3624.png";
-import imgPonchoVerde from "../assets/4f4aa45a62b536a863712fd8b3949d236cef3bf0.png";
+import imgPonchoNegro from "figma:asset/b1a69e7545c222daad26efccae87fec1fde6097f.png";
+import imgCapaMagenta from "figma:asset/07854432f17676c10fb1def7caea4aa0e23e3624.png";
+import imgPonchoVerde from "figma:asset/4f4aa45a62b536a863712fd8b3949d236cef3bf0.png";
 
 interface ProductDetailProps {
   productId: string;
@@ -36,7 +32,6 @@ const productData: { [key: string]: any } = {
     tiempo: "3 semanas de elaboración",
     disponibilidad: "Disponible - Pieza Única",
     calificacion: 4.9,
-    dressId: 1,
   },
   "product-maxi-capa-pachamama": {
     nombre: "Maxi capa pachamama el vuelo del colibrí",
@@ -54,7 +49,6 @@ const productData: { [key: string]: any } = {
     tiempo: "2 semanas de elaboración",
     disponibilidad: "Disponible - 3 unidades",
     calificacion: 5.0,
-    dressId: 2,
   },
   "product-capa-fuego-verde": {
     nombre: "Capa fuego verde el canto del colibrí",
@@ -72,7 +66,6 @@ const productData: { [key: string]: any } = {
     tiempo: "2.5 semanas de elaboración",
     disponibilidad: "Disponible - Bajo pedido",
     calificacion: 4.8,
-    dressId: 3,
   },
 };
 
@@ -81,59 +74,26 @@ export function ProductDetail({ productId, onNavigate }: ProductDetailProps) {
   const product = productData[productId] || productData["product-maxi-capa-noche-oscura"];
   const [selectedImage, setSelectedImage] = useState(0);
   const [userRating, setUserRating] = useState(0);
-  const [userEmail, setUserEmail] = useState("");
-  const [averageRating, setAverageRating] = useState<number>(product.calificacion);
-  const [isSavingRating, setIsSavingRating] = useState(false);
 
-  useEffect(() => {
-    if (product.dressId) {
-      getAverageRating(product.dressId)
-        .then((avg) => {
-          if (avg > 0) setAverageRating(Math.round(avg * 10) / 10);
-        })
-        .catch(() => {});
-    }
-  }, [product.dressId]);
-
-  const handleSaveRating = async () => {
+  const handleSaveRating = () => {
     if (userRating === 0) {
       toast.error("Por favor selecciona una calificación");
       return;
     }
 
-    if (!userEmail.trim()) {
-      toast.error("Por favor ingresa tu email para guardar la calificación");
-      return;
+    // Guardar en localStorage
+    const ratings = JSON.parse(localStorage.getItem("productRatings") || "{}");
+    if (!ratings[productId]) {
+      ratings[productId] = [];
     }
-
-    setIsSavingRating(true);
-
-    try {
-      // Find attendee by email
-      const attendees = await getAllAttendees();
-      const attendee = attendees.find(
-        (a) => a.email.toLowerCase() === userEmail.trim().toLowerCase()
-      );
-
-      if (!attendee) {
-        toast.error("Email no encontrado. Debes estar registrado al evento para calificar.");
-        setIsSavingRating(false);
-        return;
-      }
-
-      await submitRating(product.dressId, attendee.id, userRating);
-      toast.success(`Calificación de ${userRating} estrellas guardada exitosamente`);
-      setUserRating(0);
-      setUserEmail("");
-
-      // Refresh average
-      const avg = await getAverageRating(product.dressId);
-      if (avg > 0) setAverageRating(Math.round(avg * 10) / 10);
-    } catch {
-      toast.error("Error al guardar la calificación");
-    } finally {
-      setIsSavingRating(false);
-    }
+    ratings[productId].push({
+      rating: userRating,
+      date: new Date().toISOString(),
+    });
+    localStorage.setItem("productRatings", JSON.stringify(ratings));
+    
+    toast.success(`Calificación de ${userRating} estrellas guardada exitosamente`);
+    setUserRating(0);
   };
 
   return (
@@ -242,12 +202,12 @@ export function ProductDetail({ productId, onNavigate }: ProductDetailProps) {
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold">Calificación</h3>
                   <div className="flex items-center gap-2">
-                    <span className="text-2xl font-bold">{averageRating}</span>
+                    <span className="text-2xl font-bold">{product.calificacion}</span>
                     <Star className="w-6 h-6 fill-amber-400 text-amber-400" />
                   </div>
                 </div>
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">Califica esta prenda:</p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground mb-2">Califica esta prenda:</p>
                   <div className="flex gap-2 items-center">
                     <div className="flex gap-2">
                       {[1, 2, 3, 4, 5].map((star) => (
@@ -270,21 +230,9 @@ export function ProductDetail({ productId, onNavigate }: ProductDetailProps) {
                       onClick={handleSaveRating}
                       size="sm"
                       className="bg-primary hover:bg-primary/90"
-                      disabled={isSavingRating}
                     >
-                      {isSavingRating ? "Guardando..." : "Guardar calificación"}
+                      Guardar calificación
                     </Button>
-                  </div>
-                  <div>
-                    <Label htmlFor="rating-email" className="text-sm text-muted-foreground">Tu email (debe estar registrado al evento):</Label>
-                    <Input
-                      id="rating-email"
-                      type="email"
-                      value={userEmail}
-                      onChange={(e) => setUserEmail(e.target.value)}
-                      placeholder="tu@email.com"
-                      className="mt-1"
-                    />
                   </div>
                 </div>
               </CardContent>

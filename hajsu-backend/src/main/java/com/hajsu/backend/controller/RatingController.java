@@ -42,4 +42,10 @@ public class RatingController {
 
         return ratingRepository.save(rating);
     }
+
+    @GetMapping("/average")
+    public Double getAverageRating(@RequestParam Long dressId) {
+        Double avg = ratingRepository.findAverageScoreByDressId(dressId);
+        return avg != null ? avg : 0.0;
+    }
 }
