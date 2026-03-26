@@ -154,7 +154,7 @@ export function AdminPanel() {
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-6">
               <Package className="w-6 h-6 text-accent" />
-              <h2>Productos Más Vistos</h2>
+              <h2>Catálogo de Productos</h2>
             </div>
             <div className="space-y-4">
               {topProducts.map((product, index) => (
