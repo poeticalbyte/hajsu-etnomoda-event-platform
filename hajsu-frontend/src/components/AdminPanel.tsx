@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Users, Package, MessageSquare, TrendingUp, Calendar, Star, Plus, Edit } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -253,15 +253,14 @@ export function AdminPanel() {
                   ))}
                 </div>
 
+                <button
+                  className="w-full mt-4 py-3 text-center text-primary hover:bg-primary/5 rounded-md transition-colors"
+                  onClick={handleOpenAllRegisters}
+                >
+                  Ver Todos los Registros
+                </button>
+
                 <Dialog open={showAllRegistersModal} onOpenChange={setShowAllRegistersModal}>
-                  <DialogTrigger asChild>
-                    <button
-                      className="w-full mt-4 py-3 text-center text-primary hover:bg-primary/5 rounded-md transition-colors"
-                      onClick={handleOpenAllRegisters}
-                    >
-                      Ver Todos los Registros
-                    </button>
-                  </DialogTrigger>
                   <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Todos los Registros al Evento</DialogTitle>
@@ -327,13 +326,11 @@ export function AdminPanel() {
                 <Package className="w-6 h-6 text-accent" />
                 <h2>Productos Más Vistos</h2>
               </div>
+              <Button size="sm" className="bg-accent hover:bg-accent/90" onClick={() => setShowAddProductModal(true)}>
+                <Plus className="w-4 h-4 mr-1" />
+                Añadir
+              </Button>
               <Dialog open={showAddProductModal} onOpenChange={setShowAddProductModal}>
-                <DialogTrigger asChild>
-                  <Button size="sm" className="bg-accent hover:bg-accent/90">
-                    <Plus className="w-4 h-4 mr-1" />
-                    Añadir
-                  </Button>
-                </DialogTrigger>
                 <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>Añadir Nuevo Producto</DialogTitle>
